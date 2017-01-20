@@ -21,11 +21,18 @@ class Key
     {
         key = s;
         length = key.length();
+        return;
     }
 
     public void SetOPLength (int x)
     {
-        outLength = x;
+        if (x < 256 && x >0)
+        {
+            outLength = x;
+            return;
+        }
+        outLength = 256;
+        return;
     }
 
     public String GetKey() {return key;}
