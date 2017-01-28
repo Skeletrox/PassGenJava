@@ -5,8 +5,6 @@ by using a key and an output length [This helps the user create their own key, i
 By just remembering the main word and the password length, the user can retrieve their password.
 */
 package keygens;
-import java.util.Scanner;
-import java.math.*;
 import java.util.Random;
 
 public class RC4Gen
