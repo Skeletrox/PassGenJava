@@ -2,7 +2,12 @@ package main;
 
 import java.util.Scanner;
 import keygens.*;
-
+/**
+ * Use this class if and only if you want to do some modifications, enhancements, etc. to RC4Gen
+ * and need a simple interface to test
+ * @author skeletrox
+ *
+ */
 
 
 public class RC4Main {

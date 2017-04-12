@@ -1,4 +1,4 @@
-/*
+/**
 Implementation of the RC4 algorithm in order to generate a random password for the program.
 For some reason I believe this could be used to generate a random password (By using a random value), or work as a password "database",
 by using a key and an output length [This helps the user create their own key, in case they want a low-security alternative to LastPass or KeePass].
@@ -16,7 +16,7 @@ public class RC4Gen
     private Random randomizer;
     private byte[] nonces;
 
-    private void Noncify()
+    private void noncify()
     {
         randomizer.setSeed((long) (randomizer.nextGaussian() *(1 + randomizer.nextInt(544288))));
         nonces = new byte[length];
@@ -65,7 +65,7 @@ public class RC4Gen
         return;
     }
 
-    public void Swap (int i, int j)
+    public void swap (int i, int j)
     {
         sArray[i] ^= sArray[j];
         sArray[j] ^= sArray[i];
@@ -73,23 +73,23 @@ public class RC4Gen
         return;
     }
 
-    public void ScheduleKey()
+    public void scheduleKey()
     {
         j = 0;
         for (i = 0;i < 128;i++)
         {
             j = (j + sArray[i] + (int) key.charAt(i % length)) % 128;
-            Swap (i, j);
+            swap (i, j);
         }
         return;
     }
 
-    public void AppendOutput (char c)
+    public void appendOutput (char c)
     {
         output.append(c);
     }
 
-    public void GeneratePseudoRandom(boolean randBool)
+    public void generatePseudoRandom(boolean randBool)
     {
         char retChar = '\0';
         int count = 0, value = 0;
@@ -99,11 +99,11 @@ public class RC4Gen
         {
             i = (i + 1) % 128;
             j = (j + sArray[i]) % 128;
-            Swap (i, j);
+            swap (i, j);
             value = (sArray[(sArray[i] + sArray[j]) % 128]) % 94 + 33;
             if (randBool)
             {
-            	Noncify();
+            	noncify();
             	value ^= nonces[i % length];
             }
             value = (value % 94);
@@ -112,7 +112,7 @@ public class RC4Gen
             	value = 0 - value;
             }
             retChar = (char) (value % 94 + 33);
-            AppendOutput (retChar);
+            appendOutput (retChar);
         }
         return;
     }

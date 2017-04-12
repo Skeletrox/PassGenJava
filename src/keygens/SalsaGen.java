@@ -57,7 +57,7 @@ public class SalsaGen {
 		tempgen.SetKey(userKey);
 		tempgen.SetOPLength(8);
 		tempgen.hashCode();
-		tempgen.GeneratePseudoRandom(true);
+		tempgen.generatePseudoRandom(true);
 		userKey = tempgen.GetOutput();
 	}
 	
@@ -152,7 +152,7 @@ public class SalsaGen {
 		regen.SetOPLength(length);
 		regen.SetKey(tempOut.toString());
 		regen.hashCode();
-		regen.GeneratePseudoRandom(true);
+		regen.generatePseudoRandom(true);
 		output = regen.GetOutput();
 	}
 	

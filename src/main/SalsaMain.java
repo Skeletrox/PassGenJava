@@ -1,10 +1,14 @@
 package main;
 import keygens.*;
+
 import java.util.Scanner;
+/**
+ * Use the following class to test any modifications/enhancements on Salsa20 generator
+ */
 
 public class SalsaMain {
 	
-	public static void main(String[] args)
+	/*public static void main(String[] args)
 	{
 		String IPKey, output;;
 		int length;
@@ -22,6 +26,6 @@ public class SalsaMain {
 		output = salsa.getOutput();
 		System.out.println("Encoded string is " + output);
 		sc.close();
-	}
+	}*/
 
 }
