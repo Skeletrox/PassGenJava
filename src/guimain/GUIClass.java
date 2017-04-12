@@ -38,6 +38,7 @@ public class GUIClass{
 	String op;
 	JFrame frame;
 	Window w;
+	String encodeString;
 	public GUIClass()
 	{
 		int height = 768, width = 1024;
@@ -206,11 +207,9 @@ public class GUIClass{
 				FileInputStream fi = new FileInputStream(accFile);
 				String keyHash = new Scanner(fi).nextLine();
 				String salt = username.substring(0, 2) + password.substring(0, 2);
-				System.out.println("Hash Testing\n" + keyHash);
-				System.out.println(salt);
-				System.out.println((hashText(username+password, salt)));
 				if (hashText(username+password, salt).equals(keyHash))
 				{
+					encodeString = hashText(username+password, salt);
 					return;
 				}
 				fi.close();
@@ -234,6 +233,7 @@ public class GUIClass{
 				whatToWrite = hashText(whatToWrite, salt);
 				System.out.println(whatToWrite);
 				fo.write(whatToWrite.getBytes());
+				encodeString = hashText(username+password, salt);
 				return;
 			}
 			catch (Exception e)
@@ -256,15 +256,6 @@ public class GUIClass{
 	{
 		try
 		{
-			/*
-			SecretKeyFactory skf = SecretKeyFactory.getInstance("DESede");
-			byte[] saltBytes = salt.getBytes();
-			System.out.println(text.length());
-			char[] textArray = text.toCharArray();
-			PBEKeySpec spec = new PBEKeySpec (textArray, saltBytes, 5, 256);
-			SecretKey key = skf.generateSecret(spec);
-			byte[] output = key.getEncoded();
-			*/
 			
 			RC4Gen secretGen = new RC4Gen();
 			secretGen.SetKey(text+salt);
@@ -378,7 +369,6 @@ public class GUIClass{
 		try (BufferedWriter writer = Files.newBufferedWriter(p,StandardOpenOption.CREATE,StandardOpenOption.APPEND)) {
 			for (String s : strings)
 			{
-				System.out.println(s);
 				writer.write(s);
 				writer.newLine();
 			}
@@ -451,11 +441,13 @@ public class GUIClass{
 	public String quickEncode(String s)
 	{
 		byte[] b = s.getBytes();
+		int count = 0;
 		StringBuilder out = new StringBuilder();
 		for (byte bt : b)
 		{
-			bt ^= s.length();
+			bt ^= encodeString.charAt(count);
 			out.append((char) bt);
+			count %= encodeString.length();
 		}
 		return out.toString();
 	}
