@@ -1,15 +1,29 @@
 package guimain;
 import keygens.RC4Gen;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.awt.*;
 //import java.math.*;
 import java.text.NumberFormat;
@@ -164,11 +178,72 @@ public class GUIClass{
 	
 	void authenticate()
 	{
-		String username = JOptionPane.showInputDialog(frame, "Enter User ID", "Authentication", JOptionPane.INFORMATION_MESSAGE);
-		String password = JOptionPane.showInputDialog(frame, "Enter Password", "Authentication", JOptionPane.INFORMATION_MESSAGE);
-		if (username.equals("Test123") && password.equals("test123"))
+		boolean isRegistered = true;
+		File accFile = new File("usr.txt");
+		if (!(accFile.exists()))
 		{
-			return;
+			try
+			{
+				accFile.createNewFile();
+			}
+			catch (IOException io)
+			{
+				JOptionPane.showMessageDialog(frame,
+					    "Unable to create userID file!",
+					    "Fatal Error",
+					    JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+			}
+			isRegistered = false;
+		}
+		String titleString = isRegistered?"Authenticate":"Welcome New User";
+		String username = JOptionPane.showInputDialog(frame, "Enter User ID", titleString, JOptionPane.INFORMATION_MESSAGE);
+		String password = JOptionPane.showInputDialog(frame, "Enter Password", titleString, JOptionPane.INFORMATION_MESSAGE);
+		if (isRegistered)
+		{
+			try
+			{
+				FileInputStream fi = new FileInputStream(accFile);
+				String keyHash = new Scanner(fi).nextLine();
+				String salt = username.substring(0, 2) + password.substring(0, 2);
+				System.out.println("Hash Testing\n" + keyHash);
+				System.out.println(salt);
+				System.out.println((hashText(username+password, salt)));
+				if (hashText(username+password, salt).equals(keyHash))
+				{
+					return;
+				}
+				fi.close();
+			}
+			catch (Exception e)
+			{
+				JOptionPane.showMessageDialog(frame,
+					    "Unable to read file!",
+					    "Fatal Error",
+					    JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+			}
+		}
+		else
+		{
+			try
+			{
+				FileOutputStream fo = new FileOutputStream(accFile);
+				String whatToWrite = username+password;
+				String salt = username.substring(0, 2) + password.substring(0, 2);
+				whatToWrite = hashText(whatToWrite, salt);
+				System.out.println(whatToWrite);
+				fo.write(whatToWrite.getBytes());
+				return;
+			}
+			catch (Exception e)
+			{
+				JOptionPane.showMessageDialog(frame,
+					    "Unable to write to file!",
+					    "Fatal Error",
+					    JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+			}
 		}
 		JOptionPane.showMessageDialog(frame,
 			    "Wrong credentials!",
@@ -177,6 +252,38 @@ public class GUIClass{
 		System.exit(0);
 	}
 	
+	String hashText(String text, String salt)
+	{
+		try
+		{
+			/*
+			SecretKeyFactory skf = SecretKeyFactory.getInstance("DESede");
+			byte[] saltBytes = salt.getBytes();
+			System.out.println(text.length());
+			char[] textArray = text.toCharArray();
+			PBEKeySpec spec = new PBEKeySpec (textArray, saltBytes, 5, 256);
+			SecretKey key = skf.generateSecret(spec);
+			byte[] output = key.getEncoded();
+			*/
+			
+			RC4Gen secretGen = new RC4Gen();
+			secretGen.SetKey(text+salt);
+			secretGen.SetOPLength(64);
+			secretGen.ScheduleKey();
+			secretGen.GeneratePseudoRandom(false);
+			return secretGen.GetOutput();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(frame,
+				    "Encoding error",
+				    "Sorry!",
+				    JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+		}
+		return new String();
+	}
 	class UserListener implements ActionListener
 	{
 		public void actionPerformed (ActionEvent e)
@@ -224,7 +331,6 @@ public class GUIClass{
 		{
 			try
 			{
-				
 				readFromFile();
 			}
 			catch(Exception e1)
